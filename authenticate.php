@@ -1,4 +1,7 @@
 <?php
+echo <<<E
+    <link rel="stylesheet" href="styles.css">
+E;
 require_once '../login.php';
 $connection = new mysqli($hn, $un, $pw, $db);
 
@@ -53,12 +56,11 @@ if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW']))
                 $_SESSION['username'] = $un_temp;
                 $_SESSION['email'] = $row[2];
                 echo "Hi $row[0], you are now logged in";
-                die ("<p><a href=continue.php>Click here to continue</a></p>");
+                die ("<p><a href=selectCipher.php>Click here to continue</a></p>");
             }
         }
     }
 }
-
 echo "Invalid username/password/email combination.<br />Would you like to try <a href='loginForm.php'>logging in</a> again or <a href='signup.html'>sign up</a>?";
 $connection -> close();
 

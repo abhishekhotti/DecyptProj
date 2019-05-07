@@ -1,9 +1,12 @@
 body {
-  background-color: powderblue;
+    background-color: powderblue;
+}
+.contain{
+    text-align: center;
 }
 h1 {
-  color: blue;
+    color: blue;
 }
 a {
-  color: red;
+    color: #0000ff;
 }
