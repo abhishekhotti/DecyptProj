@@ -12,7 +12,7 @@ $result = $connection->query($query);
     if (!$result) die(printMe());
 function printMe()
 {
-    echo "Please continue on to <a href = 'loginForm.php'>loginForm</a>. Tables were just created<br />";
+    echo "Please continue on to <a href = 'loginForm.html'>loginForm</a>. Tables were just created<br />";
 }
 
 ?>
