@@ -1,7 +1,9 @@
 <?php
 echo <<<Begin
 <link rel="stylesheet" href="styles.css">
-Hello, welcome to the <strong>Transposition Cipher</strong> Page!!<br />
+<a href = "selectCipher.php">Main Page</a>
+<br />
+Hello, welcome to the <strong> Double Transposition Cipher</strong> Page!!<br />
 There are a few rules you have to follow for this page:<br />
 <ul>
     <li> The file needs to be in txt format, and can only contain LETTERS. No numbers, or special characters (spaces are ok)</li><br/>
@@ -242,7 +244,7 @@ function mysql_fix_string($conn, $string)
 echo <<<_END
         <html>
             <head>
-                <title>Form Test</title>
+                <title>Double Transposition</title>
             </head>
             <body>
                 <form 

@@ -1,6 +1,9 @@
 <?php
+session_start();
 echo <<<Begin
 <link rel="stylesheet" href="styles.css">
+    <a href = "selectCipher.php">Main Page</a>
+    <br />
     Hello, welcome to the <strong>Substitution Cipher</strong> Page!!<br />
     There are a few rules you have to follow for this page:<br />
     <ul>
@@ -28,10 +31,10 @@ echo <<<Begin
         </ol>
     </ul>
     Hit Submit and VIOLA! The file is either encrypted or decrypted according to your drop down selection. Remember to copy and save the output in a text file.<br/>
-<br/>
 Begin;
 $file="";
-require_once '../login.php';
+require_once 'login.php';
+$un_temp = $_SESSION['username'];
 $conn = new mysqli($hn, $un, $pw, $db);
 if(isset($_FILES['filename']) && isset($_POST["selectPart"]) && $_POST["selectPart"] == "encrypt" && $_FILES['filename']['type'] == "text/plain")
 {
@@ -44,20 +47,21 @@ if(isset($_FILES['filename']) && isset($_POST["selectPart"]) && $_POST["selectPa
         $str = "";
     $str = strtolower(mysql_entities_fix_string($conn, $str));
     $letters = getKey($str);
-    $query = "SELECT * from cipher where userN = '$un' and cipherU = 'substitutionCipher'";
+    $query = "SELECT * from cipher where userN = '$un_temp' and cipherU = 'substitutionCipher'";
     $result = $conn->query($query);
+    
     $salt1 = "qm&h*"; 
     $salt2 = "pg!@";
     $token = hash('ripemd128', "$salt1$str$salt2");
     if($result->num_rows == 0)
     {
-        $insert = "INSERT INTO cipher (userN, cipherU, keyVal, start) VALUES ('$un', 'substitutionCipher', '$letters', '$token')";
+        $insert = "INSERT INTO cipher (userN, cipherU, keyVal, start) VALUES ('$un_temp', 'substitutionCipher', '$letters', '$token')";
         $conn -> query($insert);
     }
     else if($str!="")
     {
         $update = "UPDATE cipher
-                    SET keyVal = '$letters', start = '$token' WHERE userN = '$un' AND cipherU = 'substitutionCipher'";
+                    SET keyVal = '$letters', start = '$token' WHERE userN = '$un_temp' AND cipherU = 'substitutionCipher'";
         $conn -> query($update);
         $conn->commit();
         echo "Your key in our database has been changed, if you encrypted files previously, the old key has been destroyed.<br/>";
@@ -69,9 +73,12 @@ if(isset($_FILES['filename']) && isset($_POST["selectPart"]) && $_POST["selectPa
             $result -> data_seek($i);
             $r = $result->fetch_array(MYSQLI_ASSOC);
             $letters = $r['keyVal'];
+            $result -> close();
         }
     }
     cipherMe($file, $letters);
+    $result -> close();
+    $conn -> close();
     destroyArrays();
 }
 else if(isset($_FILES['filename']) && isset($_POST["selectPart"]) && $_POST["selectPart"] == "decrypt")
@@ -81,7 +88,7 @@ else if(isset($_FILES['filename']) && isset($_POST["selectPart"]) && $_POST["sel
     $file = strtolower($file);
     $file = preg_replace('/[^a-z]+/i', ' ', $file);
     
-    $query = "Select keyVal, start from cipher where userN = '$un' AND cipherU = 'substitutionCipher'";
+    $query = "Select keyVal, start from cipher where userN = '$un_temp' AND cipherU = 'substitutionCipher'";
     $result = $conn -> query($query);
     $rows = $result->num_rows;
     for($i = 0; $i < $result->num_rows; ++$i)
@@ -103,6 +110,8 @@ else if(isset($_FILES['filename']) && isset($_POST["selectPart"]) && $_POST["sel
         decipherMe($file, $letters);
     else
         echo "<script type='text/javascript'>alert('Your input keystrings did not match, please enter the right key string in order to have your input file be decrypted properly');</script>";
+    $result -> close();
+    $conn -> close();
     destroyArrays();
 }
 else if(isset($_FILES['filename']) || isset($_POST["selectPart"]) || isset($_POST['input']))
@@ -155,7 +164,7 @@ function decipherMe($file, $key)
 function cipherMe($file, $result)
 {
     $file = preg_replace('/[^a-z]+/i', ' ', $file); 
-    echo "Your input file was:<br/>".$file."<br /><br />";
+    echo "<br />Your input file was:<br/><strong>$file</strong><br /><br />";
     $res = "";
     for($i = 0; $i < strlen($file); $i++)
     {
@@ -168,7 +177,7 @@ function cipherMe($file, $result)
         else
             $res .= ' ';
     }
-    echo "Your encrypted file is:<br/>$res<br/> <strong>Please remember to copy and save it someplace.</strong><br/><br/>";
+    echo "Your encrypted file is:<br/><strong>$res</strong><br/> <strong><br/>Please remember to copy and save it someplace.</strong><br/><br/>";
 }
 
 function destroyArrays()

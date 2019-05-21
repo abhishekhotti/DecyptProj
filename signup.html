@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>An Example Form</title>
+	<title>SignUp</title>
     <style>
     .signup {
         border:5px solid #999999; font: normal 14px helvetica; color: #763293; display: inline-block;
@@ -47,6 +47,21 @@
             val += "No Email was entered.\n"
         if (!((field.indexOf(".") > 0) && (field.indexOf("@") > 0)) || /[^a-zA-Z0-9.@_-]/.test(field))
             val += "The Email address is invalid.\n"
+        
+        //check that the input string is an well formed email 
+        var emailFilter = /^([a-zA-Z0-9_.-])+@(([a-zA-Z0-9-])+.)+([a-zA-Z0-9]{2,4})+$/;
+        if (!emailFilter.test(field)) {
+            val += "The format of the email is not correct.\n"
+        }
+
+        //check that the input email is in the whitelist
+        var s, domainWhitelist = ["gmail.com", "yahoo.com"];
+        for (s of domainWhitelist)
+          if(field.endsWith(s))
+            return val;
+        
+        val += "Your email is not on the whitelist, please only use a gmail.com or yahoo.com email address"
+        //if we reach this point it means that the email is well formed but not in the whitelist
         return val
     }
 	</script>

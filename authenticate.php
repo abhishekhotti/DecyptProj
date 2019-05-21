@@ -2,26 +2,17 @@
 echo <<<E
     <link rel="stylesheet" href="styles.css">
 E;
-require_once '../login.php';
+require_once 'login.php';
 $connection = new mysqli($hn, $un, $pw, $db);
-
-if(isset($_POST['username']) && isset($_POST['password']))
-{
-    if($_POST['username']!="" && $_POST['password']!="")
-    {
-        $_SERVER['PHP_AUTH_USER'] = $_POST['username'];
-        $_SERVER['PHP_AUTH_PW'] = $_POST['password'];
-    }
-}
 
 if ($connection->connect_error) 
 {
     die($connection->connect_error);
 }
-if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) 
+if (isset($_POST['username']) && isset($_POST['password']) && $_POST['username']!="" && $_POST['password']!="") 
 {
-    $un_temp = mysql_entities_fix_string($connection, $_SERVER['PHP_AUTH_USER']);
-    $pw_temp = mysql_entities_fix_string($connection, $_SERVER['PHP_AUTH_PW']);
+    $un_temp = mysql_entities_fix_string($connection, $_POST['username']);
+    $pw_temp = mysql_entities_fix_string($connection, $_POST['password']);
     $query = "SELECT * FROM users WHERE username='$un_temp'";
     $result = $connection->query($query); 
     if (!$result) 
@@ -40,8 +31,14 @@ if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW']))
                 $token = hash('ripemd128', "$salt1$pw_temp$salt2");
                 $query = "INSERT INTO users (username, password, email) VALUES ('$un_temp','$token', '$email')";
                 $connection->query($query);
-                die ("Your profile has been created, please <a href=loginForm.php>click here</a> to log in");
+                $result -> close();
+                $connection -> close();
+                die ("Your profile has been created, please <a href=loginForm.html>click here</a> to log in");
             }        
+        }
+        elseif($result->num_rows != 0 && $_POST['sign'] == "signup" && isset($_POST['email']))
+        {
+            die("Unfortunately there already exists a user with that username. <br />You will need to pick a different username. <br />Please try <a href='signup.html'>signing up</a> again");
         }
         elseif($result->num_rows && $_POST['sign'] == "signin")
         {
@@ -53,15 +50,16 @@ if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW']))
             if ($token == $row[1]) 
             {
                 session_start();
+                $_SESSION=array();
                 $_SESSION['username'] = $un_temp;
-                $_SESSION['email'] = $row[2];
-                echo "Hi $row[0], you are now logged in";
-                die ("<p><a href=selectCipher.php>Click here to continue</a></p>");
+                header("Location: http://localhost/CS174/FinalProj/selectCipher.php");
             }
         }
+
     }
+    
 }
-echo "Invalid username/password/email combination.<br />Would you like to try <a href='loginForm.php'>logging in</a> again or <a href='signup.html'>sign up</a>?";
+echo "Invalid username/password/email combination.<br />Would you like to try <a href='loginForm.html'>logging in</a> again or <a href='signup.html'>sign up</a>?";
 $connection -> close();
 
 function mysql_entities_fix_string($connection, $string)

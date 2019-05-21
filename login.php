@@ -1,7 +1,6 @@
-<?php
-
-$sn = "localhost";
-$un = "id9537156_abhishek";
-$pw = "abhishek";
-$db = "id9537156_decryptoidproj";
+<?php // login.php
+    $hn = 'localhost';
+    $un = 'abhi';
+    $pw = 'abhi';
+    $db = 'publications';
 ?>
